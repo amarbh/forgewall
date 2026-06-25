@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forgewall — FortiGate CLI Configuration Builder</title>
+<meta name="description" content="Forgewall is a free, single-file, 100% client-side builder for FortiGate (FortiOS 7.x) CLI configuration scripts. Nothing you type ever leaves your browser. Unofficial; not affiliated with Fortinet.">
+<meta name="author" content="Forgewall contributors">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0d1320" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f8fc" media="(prefers-color-scheme: light)">
+<!-- Open Graph / social -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Forgewall — FortiGate CLI Configuration Builder">
+<meta property="og:description" content="Free, offline-capable, single-file builder for FortiGate (FortiOS) CLI scripts. 100% client-side — nothing leaves your browser.">
+<meta name="twitter:card" content="summary">
+<!-- Inline SVG favicon (no external request) -->
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none'><path d='M24 3 42 13.5v21L24 45 6 34.5v-21L24 3Z' stroke='%23f4a73b' stroke-width='2.6' fill='%23141d30'/><path d='M17 30V18l7 6 7-6v12' stroke='%2356d6c6' stroke-width='2.6' stroke-linejoin='round' stroke-linecap='round'/></svg>">
+<style>
+:root{
+  --bg:#0d1320; --bg2:#121a2b; --bg3:#18223a; --bg4:#1f2c48;
+  --line:#243150; --line2:#1b2640;
+  --txt:#e6ecf5; --dim:#9aa7bf; --faint:#65738c;
+  --accent:#f4a73b; --accent-d:#c9831f; --accent2:#56d6c6;
+  --danger:#ef5350; --ok:#7fc77f;
+  --kw:#7aa2ff; --str:#9ece6a; --ip:#56d6c6; --num:#e0af68; --cmt:#5b6b86;
+  --r:8px; --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#2a3958;border-radius:6px}
+::-webkit-scrollbar-track{background:transparent}
+a{color:var(--accent2)}
+
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;
+  padding:10px 18px;background:rgba(13,19,32,.86);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.hexmark{width:30px;height:30px;flex:none}
+.brand h1{font-size:16px;font-weight:700;letter-spacing:.3px;margin:0;white-space:nowrap}
+.brand h1 b{color:var(--accent)}
+.brand .sub{font-size:11px;color:var(--faint);font-family:var(--mono);white-space:nowrap}
+.spacer{flex:1}
+.tb-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);
+  background:var(--bg3);color:var(--txt);padding:7px 12px;border-radius:var(--r);
+  cursor:pointer;font-weight:500;transition:border-color .15s,background .15s,transform .05s}
+.btn:hover{border-color:#34466b;background:var(--bg4)}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.navitem:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#1a1206;font-weight:600}
+.btn.primary:hover{background:#f6b455}
+.btn.ghost{background:transparent}
+.btn svg{width:15px;height:15px}
+.pill{font-family:var(--mono);font-size:11px;padding:5px 9px;border-radius:20px;border:1px solid var(--line);color:var(--dim);white-space:nowrap}
+.pill.warn{color:#1a1206;background:var(--accent);border-color:var(--accent);font-weight:600;cursor:default}
+.pill.good{color:var(--ok);border-color:#2c4a36}
+
+.layout{display:grid;grid-template-columns:248px minmax(0,1fr) minmax(380px,460px);height:calc(100vh - 53px)}
+.nav{border-right:1px solid var(--line);overflow-y:auto;padding:10px 0 40px}
+.work{overflow-y:auto;padding:22px 26px 80px}
+.outwrap{border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:#0a101c}
+
+.navgroup{margin:6px 0 2px}
+.navhead{display:flex;align-items:center;gap:8px;padding:9px 16px 5px;font-size:10.5px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.navhead svg{width:13px;height:13px;opacity:.7}
+.navitem{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;
+  border:0;border-left:2px solid transparent;color:var(--dim);padding:7px 16px 7px 26px;
+  cursor:pointer;font-size:13px;transition:color .12s,background .12s,border-color .12s}
+.navitem:hover{color:var(--txt);background:#101729}
+.navitem.active{color:var(--txt);background:#101a2e;border-left-color:var(--accent);font-weight:500}
+.navitem .cnt{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--faint);
+  background:#0e1626;border:1px solid var(--line2);border-radius:10px;padding:0 7px;min-width:20px;text-align:center}
+.navitem.active .cnt{color:var(--accent);border-color:#3a3018}
+
+.mod-head h2{margin:0;font-size:20px;font-weight:700;letter-spacing:.2px}
+.mod-head p{margin:5px 0 0;color:var(--dim);max-width:66ch}
+.mod-cli{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:11.5px;
+  color:var(--accent2);background:#0c1424;border:1px solid var(--line);border-radius:6px;padding:3px 9px}
+.divider{height:1px;background:var(--line);margin:18px 0}
+
+.enable-row{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line);
+  border-radius:var(--r);padding:12px 14px;margin-bottom:18px}
+.enable-row .lbl{font-weight:600}
+.enable-row .hint{color:var(--faint);font-size:12.5px}
+
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px;position:relative}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px}
+.card-top .idx{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.04em}
+.card-top .nm{font-weight:600;color:var(--txt);font-family:var(--mono);font-size:13px}
+.iconbtn{border:1px solid var(--line);background:var(--bg3);color:var(--dim);border-radius:6px;
+  width:30px;height:30px;display:grid;place-items:center;cursor:pointer}
+.iconbtn:hover{color:var(--danger);border-color:#5a2a2e;background:#241419}
+.iconbtn svg{width:15px;height:15px}
+
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 16px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field.full{grid-column:1/-1}
+.field>label{font-size:12px;color:var(--dim);font-weight:500;display:flex;align-items:center;gap:6px}
+.field>label .req{color:var(--accent)}
+.field .help{font-size:11px;color:var(--faint);font-family:var(--mono)}
+.in{background:var(--bg3);border:1px solid var(--line);border-radius:7px;padding:8px 10px;width:100%;transition:border-color .12s}
+.in:hover{border-color:#33456a}
+.in:focus{border-color:var(--accent);outline:none}
+.in.mono{font-family:var(--mono);font-size:13px}
+.in.bad{border-color:var(--danger)}
+select.in{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa7bf' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+
+.sw{position:relative;width:42px;height:24px;flex:none;cursor:pointer;display:inline-block}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw .track{position:absolute;inset:0;background:#2a3859;border-radius:20px;transition:background .15s}
+.sw .knob{position:absolute;top:3px;left:3px;width:18px;height:18px;background:#cdd6e6;border-radius:50%;transition:transform .15s,background .15s}
+.sw input:checked+.track{background:var(--accent)}
+.sw input:checked~.knob{transform:translateX(18px);background:#1a1206}
+.field-toggle{display:flex;align-items:center;gap:10px}
+.field-toggle .ttxt{font-size:12.5px;color:var(--faint)}
+
+.checks{display:flex;flex-wrap:wrap;gap:7px}
+.chk{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg3);
+  border-radius:18px;padding:5px 11px;cursor:pointer;font-size:12.5px;font-family:var(--mono);color:var(--dim);user-select:none;transition:.12s}
+.chk:hover{border-color:#33456a;color:var(--txt)}
+.chk input{display:none}
+.chk.on{background:rgba(244,167,59,.13);border-color:var(--accent);color:var(--accent)}
+
+.addbtn{display:inline-flex;align-items:center;gap:8px;border:1px dashed var(--line);background:transparent;
+  color:var(--dim);padding:11px 16px;border-radius:var(--r);cursor:pointer;font-weight:500;width:100%;justify-content:center;transition:.12s}
+.addbtn:hover{border-color:var(--accent);color:var(--accent);background:rgba(244,167,59,.05)}
+.addbtn svg{width:16px;height:16px}
+.empty{color:var(--faint);font-size:13px;text-align:center;padding:20px;border:1px dashed var(--line2);border-radius:var(--r);margin-bottom:14px}
+
+.out-bar{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line);background:#0c1322}
+.out-bar .ot{font-weight:600;font-size:13px}
+.out-bar .meta{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.out-bar .obtns{margin-left:auto;display:flex;gap:7px}
+.code{flex:1;overflow:auto;margin:0;padding:14px 16px 60px;font-family:var(--mono);font-size:12.5px;
+  line-height:1.65;white-space:pre;tab-size:4;color:var(--txt)}
+.tok-kw{color:var(--kw)}.tok-str{color:var(--str)}.tok-ip{color:var(--ip)}
+.tok-num{color:var(--num)}.tok-comment{color:var(--cmt);font-style:italic}
+.code .ln{color:#2f3c59;user-select:none;display:inline-block;width:34px;text-align:right;padding-right:14px;margin-right:2px}
+
+.mob-toggle{display:none}
+.overlay-x{display:none}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#0c1322;border:1px solid var(--accent);color:var(--txt);padding:10px 18px;border-radius:24px;
+  font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:90;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.foot{padding:14px 26px;color:var(--faint);font-size:11px;border-top:1px solid var(--line2);font-family:var(--mono);line-height:1.7}
+.nav-toggle,.out-close{display:none}
+
+@media (max-width:1180px){
+  .layout{grid-template-columns:220px minmax(0,1fr)}
+  .outwrap{position:fixed;top:0;right:0;height:100vh;width:min(520px,92vw);z-index:60;
+    transform:translateX(101%);transition:transform .25s;box-shadow:-12px 0 40px rgba(0,0,0,.5)}
+  .outwrap.open{transform:translateX(0)}
+  .overlay-x{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:55;opacity:0;pointer-events:none;transition:.2s}
+  .overlay-x.open{opacity:1;pointer-events:auto}
+  .mob-toggle{display:inline-flex}
+  .out-close{display:grid !important}
+}
+@media (max-width:720px){
+  .layout{grid-template-columns:1fr}
+  .nav{position:fixed;top:53px;left:0;height:calc(100vh - 53px);width:240px;background:var(--bg);z-index:50;
+    transform:translateX(-101%);transition:transform .25s;box-shadow:12px 0 40px rgba(0,0,0,.5)}
+  .nav.open{transform:translateX(0)}
+  .nav-toggle{display:grid !important}
+  .grid{grid-template-columns:1fr}
+  .brand .sub{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+/* ---------- utility icon buttons (neutral hover; override the delete-red hover) ---------- */
+.iconbtn.util{color:var(--dim)}
+.iconbtn.util:hover{color:var(--accent2);border-color:#34466b;background:var(--bg4)}
+:root[data-theme="light"] .iconbtn.util:hover{background:var(--bg3)}
+
+/* ---------- nav section search ---------- */
+.navsearch{position:sticky;top:0;z-index:2;padding:10px 12px 9px;background:var(--bg);border-bottom:1px solid var(--line2)}
+.navsearch .in{padding:7px 10px;font-size:12.5px}
+
+/* ---------- about / help modal ---------- */
+.modal-x{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+  padding:20px;background:rgba(4,8,16,.62);backdrop-filter:blur(3px)}
+.modal-x.open{display:flex}
+.modal-card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;max-width:560px;width:100%;
+  max-height:86vh;overflow:auto;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:15px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg2);z-index:1}
+.modal-head h2{margin:0;font-size:17px;font-weight:700}
+.modal-body{padding:16px 18px 20px}
+.modal-body p{margin:0 0 12px;color:var(--dim);line-height:1.6}
+.modal-body h3{margin:18px 0 7px;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+.modal-body b{color:var(--txt)}
+.modal-body a{color:var(--accent2)}
+.modal-foot{font-size:11.5px;color:var(--faint);border-top:1px solid var(--line2);padding-top:12px;margin-top:6px;line-height:1.6}
+ul.kbds{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:8px;color:var(--dim);font-size:13px}
+.kbd{display:inline-block;font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--txt);
+  background:var(--bg3);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px}
+
+/* ---------- light theme ---------- */
+:root[data-theme="light"]{
+  --bg:#f6f8fc; --bg2:#ffffff; --bg3:#eef2f8; --bg4:#e3eaf4;
+  --line:#d4ddea; --line2:#e6ebf3;
+  --txt:#1b2536; --dim:#4f5e76; --faint:#7c8aa0;
+  --accent:#d9831a; --accent-d:#b56a10; --accent2:#0e8c83;
+  --danger:#d23b38; --ok:#2f8a4e;
+  --kw:#2f5fd0; --str:#3f7e2a; --ip:#0e8c83; --num:#996712; --cmt:#8a93a6;
+}
+:root[data-theme="light"] body{background:var(--bg)}
+:root[data-theme="light"] .topbar{background:rgba(246,248,252,.86)}
+:root[data-theme="light"] .outwrap{background:#eef2f8}
+:root[data-theme="light"] .out-bar{background:#e9eef6}
+:root[data-theme="light"] .navsearch{background:var(--bg)}
+:root[data-theme="light"] .navitem:hover{background:#eef2f8}
+:root[data-theme="light"] .navitem.active{background:#e8eff8}
+:root[data-theme="light"] .navitem .cnt{background:#eef2f8}
+:root[data-theme="light"] .mod-cli{background:#eef4fb}
+:root[data-theme="light"] .code .ln{color:#a7b1c6}
+:root[data-theme="light"] .toast{background:#1b2536;color:#fff}
+:root[data-theme="light"] ::-webkit-scrollbar-thumb{background:#c4cedd}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="iconbtn nav-toggle" id="navToggle" title="Sections" aria-label="Toggle sections">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="brand">
+    <svg class="hexmark" viewBox="0 0 48 48" fill="none">
+      <path d="M24 3 42 13.5v21L24 45 6 34.5v-21L24 3Z" stroke="#f4a73b" stroke-width="2.4" fill="#141d30"/>
+      <path d="M17 30V18l7 6 7-6v12" stroke="#56d6c6" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>
+    <div>
+      <h1>Forge<b>wall</b></h1>
+      <div class="sub">FortiGate CLI builder</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="tb-actions">
+    <button class="iconbtn util" id="themeBtn" title="Toggle light / dark theme" aria-label="Toggle theme"></button>
+    <button class="iconbtn util" id="helpBtn" title="About &amp; keyboard shortcuts" aria-label="About Forgewall">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.2 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.6 2.4-2.6 4"/><circle cx="12" cy="17.3" r="1" fill="currentColor" stroke="none"/></svg>
+    </button>
+    <span class="pill" id="placeholderPill" title="Placeholders that must be replaced">no placeholders</span>
+    <button class="btn ghost" id="exampleBtn" title="Load a sample branch config">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v3M12 19v3M5 5l2 2M17 17l2 2M2 12h3M19 12h3M5 19l2-2M17 7l2-2"/><circle cx="12" cy="12" r="3"/></svg>
+      Example
+    </button>
+    <button class="btn ghost" id="importBtn" title="Load a saved .json profile">Import</button>
+    <button class="btn ghost" id="exportBtn" title="Save your work as .json">Export</button>
+    <input type="file" id="fileIn" accept=".json,application/json" hidden>
+    <button class="btn ghost" id="resetBtn" title="Clear everything">Reset</button>
+    <button class="btn primary mob-toggle" id="mobView">View script</button>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="nav" id="nav">
+    <div class="navsearch">
+      <input id="navSearch" class="in mono" type="text" placeholder="Search sections…  ( / )" autocomplete="off" spellcheck="false" aria-label="Search sections">
+    </div>
+    <div id="navList"></div>
+  </nav>
+  <main class="work" id="work"></main>
+  <section class="outwrap" id="outwrap">
+    <div class="out-bar">
+      <span class="ot">Generated CLI</span>
+      <span class="meta" id="outMeta">0 lines</span>
+      <div class="obtns">
+        <button class="btn ghost" id="copyBtn" style="padding:6px 11px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button>
+        <button class="btn ghost" id="dlBtn" style="padding:6px 11px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>.conf</button>
+        <button class="iconbtn out-close" id="outClose" title="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <pre class="code" id="code"></pre>
+  </section>
+</div>
+<div class="modal-x" id="helpModal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-label="About Forgewall">
+    <div class="modal-head">
+      <h2>About Forgewall</h2>
+      <button class="iconbtn util" id="helpClose" title="Close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p><b>Forgewall</b> turns a form into a <b>FortiGate</b> (FortiOS&nbsp;7.x) CLI configuration script. It runs entirely in your browser — no backend, no account, no tracking.</p>
+      <h3>Privacy</h3>
+      <p>100% client-side. Forgewall makes <b>no network requests at all</b>, so you can save this page and run it completely offline. Your configuration is <b>never written to disk or local storage</b> — it lives only in the tab and disappears when you close it, unless you explicitly choose <b>Export</b>.</p>
+      <h3>Keyboard shortcuts</h3>
+      <ul class="kbds">
+        <li><span class="kbd">/</span> &nbsp;focus the section search</li>
+        <li><span class="kbd">Ctrl</span>/<span class="kbd">⌘</span> + <span class="kbd">S</span> &nbsp;export profile (.json)</li>
+        <li><span class="kbd">Ctrl</span>/<span class="kbd">⌘</span> + <span class="kbd">Enter</span> &nbsp;copy the generated CLI</li>
+        <li><span class="kbd">Esc</span> &nbsp;close dialogs / clear search</li>
+      </ul>
+      <h3>Before you deploy</h3>
+      <p>The output is a <b>starting point, not a finished configuration</b>. Review every value, replace all <span class="kbd">&lt;PLACEHOLDERS&gt;</span>, and test version-specific syntax (timezone index, profile names, options) on your own device in a lab before touching production.</p>
+      <p class="modal-foot">Open-source on <a id="repoLink" href="https://github.com/your-username/forgewall" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; v1.0.0 &middot; Unofficial — not affiliated with or endorsed by Fortinet,&nbsp;Inc. &ldquo;FortiGate&rdquo; and &ldquo;FortiOS&rdquo; are trademarks of Fortinet,&nbsp;Inc., used here only to describe compatibility.</p>
+    </div>
+  </div>
+</div>
+<div class="overlay-x" id="overlayX"></div>
+<div class="toast" id="toast"></div>
+<div class="foot" id="foot"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   Forgewall — FortiGate (FortiOS) CLI configuration builder.
+   Single-file, 100% client-side. Syntax targets FortiOS 7.x.
+   Unofficial; not affiliated with Fortinet, Inc.
+   Licensed under the MIT License.
+   ============================================================ */
+const VERSION='1.0.0';
+
+/* ---------- DOM + utility helpers ---------- */
+const $ = s => document.querySelector(s);
+function el(t,a,...kids){
+  const n=document.createElement(t);
+  if(a) for(const k in a){
+    const v=a[k];
+    if(k==='class') n.className=v;
+    else if(k==='html') n.innerHTML=v;
+    else if(k==='style') n.setAttribute('style',v);
+    else if(k.slice(0,2)==='on' && typeof v==='function') n.addEventListener(k.slice(2),v);
+    else if(v!==false && v!=null) n.setAttribute(k,v);
+  }
+  kids.flat().forEach(c=>{ if(c==null||c===false) return; n.append(c.nodeType?c:document.createTextNode(String(c))); });
+  return n;
+}
+function svg(path){
+  const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('viewBox','0 0 24 24');s.setAttribute('fill','none');s.setAttribute('stroke','currentColor');
+  s.setAttribute('stroke-width','2');s.setAttribute('stroke-linecap','round');s.setAttribute('stroke-linejoin','round');
+  s.innerHTML=path;return s;
+}
+const TRASH='<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>';
+const PLUS='<path d="M12 5v14M5 12h14"/>';
+
+const qq = s => '"'+String(s==null?'':s).replace(/"/g,'')+'"';
+const toks = s => String(s||'').split(/[\s,]+/).map(x=>x.trim()).filter(Boolean);
+const qlist = s => toks(s).map(qq).join(' ');
+const isIP = v => /^\d{1,3}(\.\d{1,3}){3}$/.test(v) && v.split('.').every(o=>+o>=0&&+o<=255);
+function cidrToMask(n){ n=+n; if(isNaN(n)||n<0||n>32) return ''; const o=[0,0,0,0]; for(let i=0;i<n;i++) o[(i/8)|0]+=1<<(7-(i%8)); return o.join('.'); }
+function normMask(m){ m=String(m||'').trim(); if(!m) return ''; if(m.includes('.')) return m; m=m.replace('/',''); if(/^\d{1,2}$/.test(m)&&+m<=32) return cidrToMask(+m); return m; }
+function pairIM(ip,mask){ ip=String(ip||'').trim(); if(!ip) return ''; if(ip.includes('/')){ const [a,c]=ip.split('/'); return a+' '+cidrToMask(c); } const mm=normMask(mask); return mm? ip+' '+mm : ip; }
+function pad2(n){ return String(n).padStart(2,'0'); }
+
+/* ---------- CLI emitter (manages indentation) ---------- */
+function Emitter(){
+  const L=[]; let d=0; const pad=()=>'    '.repeat(d);
+  const api={
+    open:s=>{ L.push(pad()+s); d++; return api; },
+    close:(s='end')=>{ d=Math.max(0,d-1); L.push(pad()+s); return api; },
+    edit:id=>{ L.push(pad()+'edit '+id); d++; return api; },
+    next:()=>{ d=Math.max(0,d-1); L.push(pad()+'next'); return api; },
+    set:(k,v)=>{ if(v!==undefined&&v!==null&&v!==''&&!(Array.isArray(v)&&!v.length)) L.push(pad()+'set '+k+' '+(Array.isArray(v)?v.join(' '):v)); return api; },
+    raw:s=>{ L.push(pad()+s); return api; },
+    out:()=>L.join('\n')
+  };
+  return api;
+}
+
+/* ---------- group icons ---------- */
+const GI={
+  sys:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 2.6 14H2.5a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4 7.6l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 10 4.6V4.5a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8Z"/>',
+  net:'<rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/><path d="M6 10v4a2 2 0 0 0 2 2h6"/>',
+  obj:'<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>',
+  nat:'<path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>',
+  pol:'<path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1 1 0 0 1 1.5 0C14.6 3.8 17 5 19 5a1 1 0 0 1 1 1Z"/>',
+  vpn:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  usr:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/>',
+  log:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>'
+};
+
+/* ---------- shared option lists ---------- */
+const TZ=[["","— select —"],["00","(GMT-12) Eniwetok, Kwajalein"],["02","(GMT-10) Hawaii"],["03","(GMT-9) Alaska"],["04","(GMT-8) Pacific Time (US & Canada)"],["05","(GMT-7) Arizona"],["10","(GMT-7) Mountain Time (US & Canada)"],["12","(GMT-6) Central Time (US & Canada)"],["19","(GMT-5) Eastern Time (US & Canada)"],["22","(GMT-4) Atlantic Time (Canada)"],["26","(GMT) Monrovia, Casablanca"],["27","(GMT) Greenwich Mean Time, London"],["28","(GMT+1) Amsterdam, Berlin, Rome, Paris"],["29","(GMT+1) Brussels, Madrid"],["31","(GMT+2) Athens, Helsinki, Istanbul"],["32","(GMT+2) Cairo"],["35","(GMT+3) Moscow, St. Petersburg"],["43","(GMT+4) Abu Dhabi, Muscat"],["47","(GMT+5) Islamabad, Karachi"],["51","(GMT+5:30) Chennai, Kolkata, Mumbai, New Delhi"],["56","(GMT+7) Bangkok, Hanoi, Jakarta"],["58","(GMT+8) Beijing, Hong Kong, Singapore"],["60","(GMT+8) Kuala Lumpur, Perth"],["64","(GMT+9) Osaka, Tokyo"],["67","(GMT+9:30) Adelaide"],["70","(GMT+10) Canberra, Melbourne, Sydney"],["75","(GMT+12) Auckland, Wellington"]];
+const ALLOWACCESS=["ping","https","ssh","http","snmp","fgfm","telnet","ftm","radius-acct"];
+const DAYS=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+const P1PROP=["aes128-sha256","aes256-sha256","aes256-sha384","aes128-sha1","aes256-sha1","aes128gcm-prfsha256","aes256gcm-prfsha384"];
+const DHGRP=["14","15","16","19","20","21","5","2","27","28","29","30","31","32"];
+
+/* ============================================================
+   MODULES  (definition + CLI generator per FortiGate feature)
+   ============================================================ */
+const MODULES={
+
+/* ---------- SYSTEM ---------- */
+global:{group:'sys',label:'Global / System',desc:'Hostname, timezone and administrative access ports for the device.',single:true,cli:'config system global',
+  fields:[
+    {k:'hostname',l:'Hostname',t:'text',ph:'FGT-01',mono:true},
+    {k:'timezone',l:'Timezone',t:'select',opts:TZ,help:'FortiOS index — verify with set timezone ?'},
+    {k:'admin_sport',l:'HTTPS admin port',t:'number',ph:'443'},
+    {k:'admin_port',l:'HTTP admin port',t:'number',ph:'80'},
+    {k:'admin_ssh_port',l:'SSH admin port',t:'number',ph:'22'},
+    {k:'admintimeout',l:'Admin idle timeout (min)',t:'number',ph:'5'},
+    {k:'gui_theme',l:'GUI theme (optional)',t:'select',opts:[["","— default —"],"jade","mariner","neutrino","graphite","melongene","onyx","dark-matter","eclipse"],help:'Version dependent'}
+  ],
+  gen(o){const has=o.hostname||o.timezone||o.admin_sport||o.admin_port||o.admin_ssh_port||o.admintimeout||o.gui_theme;if(!has)return'';
+    const e=Emitter();e.open('config system global');
+    e.set('hostname',o.hostname?qq(o.hostname):'');e.set('timezone',o.timezone);
+    e.set('admin-port',o.admin_port);e.set('admin-sport',o.admin_sport);e.set('admin-ssh-port',o.admin_ssh_port);
+    e.set('admintimeout',o.admintimeout);e.set('gui-theme',o.gui_theme);
+    e.close();return e.out();}
+},
+
+dns:{group:'sys',label:'DNS',desc:'System DNS resolver servers and local domain.',single:true,cli:'config system dns',
+  fields:[
+    {k:'primary',l:'Primary DNS',t:'ip',ph:'8.8.8.8'},
+    {k:'secondary',l:'Secondary DNS',t:'ip',ph:'1.1.1.1'},
+    {k:'domain',l:'Local domain',t:'text',ph:'corp.example.com',mono:true},
+    {k:'protocol',l:'DNS protocol',t:'select',opts:[["","— default (cleartext) —"],"cleartext","dot","doh"],help:'dot/doh need 7.x + server cfg'}
+  ],
+  gen(o){if(!o.primary&&!o.secondary&&!o.domain&&!o.protocol)return'';const e=Emitter();e.open('config system dns');
+    e.set('primary',o.primary);e.set('secondary',o.secondary);e.set('domain',o.domain?qq(o.domain):'');e.set('protocol',o.protocol);e.close();return e.out();}
+},
+
+ntp:{group:'sys',label:'NTP',desc:'Time synchronization. Use FortiGuard servers or your own NTP hosts.',single:true,cli:'config system ntp',
+  fields:[
+    {k:'sync',l:'Enable NTP sync',t:'toggle',sub:'Required for accurate VPN & logging',def:false,controls:true},
+    {k:'type',l:'Server type',t:'select',opts:["fortiguard","custom"],def:'fortiguard',controls:true,showIf:o=>o.sync},
+    {k:'servers',l:'NTP servers',t:'tags',ph:'pool.ntp.org 192.168.1.1',help:'Space/comma separated',showIf:o=>o.sync&&o.type==='custom'}
+  ],
+  gen(o){if(!o.sync)return'';const e=Emitter();e.open('config system ntp');e.set('ntpsync','enable');e.set('type',o.type||'fortiguard');
+    if(o.type==='custom'){const list=toks(o.servers);if(list.length){e.open('config ntpserver');list.forEach((s,i)=>{e.edit(i+1);e.set('server',qq(s));e.next();});e.close();}}
+    e.close();return e.out();}
+},
+
+admin:{group:'sys',label:'Admin Accounts',desc:'Additional administrators. A blank password emits a placeholder to set on the device.',cli:'config system admin',item:'administrator',
+  fields:[
+    {k:'name',l:'Username',t:'text',req:true,ph:'netadmin',mono:true},
+    {k:'accprofile',l:'Access profile',t:'select',opts:["super_admin","prof_admin"],def:'prof_admin',help:'Or any custom profile name'},
+    {k:'vdom',l:'VDOM',t:'text',def:'root',mono:true},
+    {k:'password',l:'Password',t:'password',ph:'(blank = placeholder)',help:'Stored in plaintext in the script'},
+    {k:'trusthost',l:'Trusted host',t:'ip',ph:'10.0.0.0/24',help:'Optional source restriction'}
+  ],
+  valid:a=>a.name,
+  gen(arr){const ents=arr.filter(a=>a.name);if(!ents.length)return'';const e=Emitter();e.open('config system admin');
+    ents.forEach(a=>{e.edit(qq(a.name));e.set('accprofile',qq(a.accprofile||'prof_admin'));e.set('vdom',qq(a.vdom||'root'));
+      e.set('password',a.password?qq(a.password):'<ADMIN_PASSWORD>');
+      const th=pairIM(a.trusthost,'');if(th)e.set('trusthost1',th.includes(' ')?th:th+' 255.255.255.255');
+      e.next();});e.close();return e.out();}
+},
+
+/* ---------- INTERFACES & ROUTING ---------- */
+interfaces:{group:'net',label:'Interfaces',desc:'Physical ports, VLANs, loopbacks and aggregates. Set addressing mode and management access.',cli:'config system interface',item:'interface',
+  fields:[
+    {k:'name',l:'Name',t:'text',req:true,ph:'port1 / VLAN10',mono:true},
+    {k:'type',l:'Type',t:'select',opts:["physical","vlan","loopback","aggregate","software-switch"],def:'physical',controls:true},
+    {k:'vdom',l:'VDOM',t:'text',def:'root',mono:true},
+    {k:'role',l:'Role',t:'select',opts:[["","undefined"],"lan","wan","dmz"]},
+    {k:'parent',l:'Parent interface',t:'text',ph:'port1',mono:true,req:true,showIf:o=>o.type==='vlan'},
+    {k:'vlanid',l:'VLAN ID',t:'number',ph:'10',req:true,showIf:o=>o.type==='vlan'},
+    {k:'members',l:'Member interfaces',t:'tags',ph:'port3 port4',showIf:o=>o.type==='aggregate'||o.type==='software-switch'},
+    {k:'mode',l:'Addressing',t:'select',opts:["static","dhcp","pppoe"],def:'static',controls:true},
+    {k:'ip',l:'IP address',t:'ip',ph:'192.168.1.1 or 192.168.1.1/24',mono:true,showIf:o=>(o.mode||'static')==='static'},
+    {k:'mask',l:'Netmask',t:'mask',ph:'255.255.255.0 or 24',mono:true,showIf:o=>(o.mode||'static')==='static'},
+    {k:'pppoe_user',l:'PPPoE username',t:'text',mono:true,showIf:o=>o.mode==='pppoe'},
+    {k:'pppoe_pass',l:'PPPoE password',t:'password',showIf:o=>o.mode==='pppoe'},
+    {k:'allowaccess',l:'Administrative access',t:'checks',opts:ALLOWACCESS,full:true},
+    {k:'mtu',l:'MTU override',t:'number',ph:'1500',help:'Blank = default'},
+    {k:'status',l:'Bring interface up',t:'toggle',def:true},
+    {k:'alias',l:'Alias',t:'text',mono:true},
+    {k:'description',l:'Description',t:'text',full:true}
+  ],
+  valid:a=>a.name,
+  gen(arr){const ents=arr.filter(a=>a.name);if(!ents.length)return'';const e=Emitter();e.open('config system interface');
+    ents.forEach(a=>{e.edit(qq(a.name));e.set('vdom',qq(a.vdom||'root'));e.set('mode',a.mode||'static');
+      if((a.mode||'static')==='static'){const im=pairIM(a.ip,a.mask);if(im)e.set('ip',im);}
+      if(a.mode==='pppoe'){e.set('username',a.pppoe_user?qq(a.pppoe_user):'');e.set('password',a.pppoe_pass?qq(a.pppoe_pass):'<PPPOE_PASSWORD>');}
+      if(a.allowaccess&&a.allowaccess.length)e.set('allowaccess',a.allowaccess);
+      if(a.type==='vlan'){e.set('interface',a.parent?qq(a.parent):'');e.set('vlanid',a.vlanid);}
+      else if(a.type==='loopback')e.set('type','loopback');
+      else if(a.type==='aggregate'){e.set('type','aggregate');if(toks(a.members).length)e.set('member',qlist(a.members));}
+      else if(a.type==='software-switch'){e.set('type','switch');if(toks(a.members).length)e.set('member',qlist(a.members));}
+      if(a.role)e.set('role',a.role);
+      if(a.mtu){e.set('mtu-override','enable');e.set('mtu',a.mtu);}
+      e.set('alias',a.alias?qq(a.alias):'');e.set('description',a.description?qq(a.description):'');
+      if(a.status===false)e.set('status','down');
+      e.next();});e.close();return e.out();}
+},
+
+zones:{group:'net',label:'Zones',desc:'Group several interfaces into a single zone to simplify policy.',cli:'config system zone',item:'zone',
+  fields:[
+    {k:'name',l:'Zone name',t:'text',req:true,ph:'trust',mono:true},
+    {k:'intrazone',l:'Intra-zone traffic',t:'select',opts:["allow","deny"],def:'allow'},
+    {k:'interface',l:'Member interfaces',t:'tags',req:true,ph:'port1 port3 VLAN10',help:'Space/comma separated'}
+  ],
+  valid:a=>a.name,
+  gen(arr){const ents=arr.filter(a=>a.name);if(!ents.length)return'';const e=Emitter();e.open('config system zone');
+    ents.forEach(a=>{e.edit(qq(a.name));e.set('intrazone',a.intrazone||'allow');if(toks(a.interface).length)e.set('interface',qlist(a.interface));e.next();});
+    e.close();return e.out();}
+},
+
+dhcp:{group:'net',label:'DHCP Servers',desc:'Per-interface DHCP scopes with gateway, DNS and lease settings.',cli:'config system dhcp server',item:'DHCP scope',
+  fields:[
+    {k:'interface',l:'Interface',t:'text',req:true,ph:'port1',mono:true},
+    {k:'startip',l:'Range start',t:'ip',req:true,ph:'192.168.1.100'},
+    {k:'endip',l:'Range end',t:'ip',req:true,ph:'192.168.1.200'},
+    {k:'mask',l:'Netmask',t:'mask',req:true,ph:'255.255.255.0 or 24'},
+    {k:'gateway',l:'Default gateway',t:'ip',ph:'192.168.1.1'},
+    {k:'dnsmode',l:'DNS service',t:'select',opts:["default","specify","local"],def:'default',controls:true},
+    {k:'dns1',l:'DNS server 1',t:'ip',ph:'8.8.8.8',showIf:o=>o.dnsmode==='specify'},
+    {k:'dns2',l:'DNS server 2',t:'ip',ph:'1.1.1.1',showIf:o=>o.dnsmode==='specify'},
+    {k:'lease',l:'Lease time (sec)',t:'number',ph:'604800'},
+    {k:'domain',l:'Domain',t:'text',mono:true}
+  ],
+  valid:a=>a.interface&&a.startip&&a.endip,
+  gen(arr){const ents=arr.filter(this.valid);if(!ents.length)return'';const e=Emitter();e.open('config system dhcp server');
+    ents.forEach((a,i)=>{e.edit(i+1);e.set('dns-service',a.dnsmode||'default');
+      if(a.dnsmode==='specify'){e.set('dns-server1',a.dns1);e.set('dns-server2',a.dns2);}
+      if(a.gateway)e.set('default-gateway',a.gateway);
+      e.set('netmask',normMask(a.mask));e.set('interface',qq(a.interface));
+      e.open('config ip-range').edit(1).set('start-ip',a.startip).set('end-ip',a.endip).next().close();
+      e.set('lease-time',a.lease);e.set('domain',a.domain?qq(a.domain):'');
+      e.next();});e.close();return e.out();}
+},
+
+routes:{group:'net',label:'Static Routes',desc:'IPv4 static routes, including default routes and blackholes.',cli:'config router static',item:'route',
+  fields:[
+    {k:'dst',l:'Destination',t:'ip',ph:'0.0.0.0 or 10.0.0.0/8',mono:true},
+    {k:'mask',l:'Netmask',t:'mask',ph:'0.0.0.0 or 8',mono:true},
+    {k:'gateway',l:'Gateway',t:'ip',ph:'192.168.1.254',showIf:o=>!o.blackhole},
+    {k:'device',l:'Outgoing interface',t:'text',ph:'port2',mono:true,showIf:o=>!o.blackhole},
+    {k:'distance',l:'Distance',t:'number',ph:'10'},
+    {k:'priority',l:'Priority',t:'number',ph:'0'},
+    {k:'blackhole',l:'Blackhole route',t:'toggle',sub:'Drop matching traffic',controls:true},
+    {k:'status',l:'Enabled',t:'toggle',def:true},
+    {k:'comment',l:'Comment',t:'text',full:true}
+  ],
+  valid:a=>a.dst,
+  gen(arr){const ents=arr.filter(a=>a.dst);if(!ents.length)return'';const e=Emitter();e.open('config router static');
+    ents.forEach((a,i)=>{e.edit(i+1);e.set('dst',pairIM(a.dst,a.mask));
+      if(a.blackhole){e.set('blackhole','enable');}else{e.set('gateway',a.gateway);e.set('device',a.device?qq(a.device):'');}
+      e.set('distance',a.distance);e.set('priority',a.priority);e.set('comment',a.comment?qq(a.comment):'');
+      if(a.status===false)e.set('status','disable');
+      e.next();});e.close();return e.out();}
+},
+
+/* ---------- FIREWALL OBJECTS ---------- */
+address:{group:'obj',label:'Addresses',desc:'Address objects used as sources/destinations in policy.',cli:'config firewall address',item:'address',
+  fields:[
+    {k:'name',l:'Name',t:'text',req:true,ph:'LAN_Subnet',mono:true},
+    {k:'type',l:'Type',t:'select',opts:[["subnet","subnet (ipmask)"],["iprange","IP range"],["fqdn","FQDN"],["geography","geography"]],def:'subnet',controls:true},
+    {k:'subnet',l:'Subnet',t:'ip',ph:'192.168.1.0',mono:true,showIf:o=>(o.type||'subnet')==='subnet'},
+    {k:'mask',l:'Netmask',t:'mask',ph:'255.255.255.0 or 24',mono:true,showIf:o=>(o.type||'subnet')==='subnet'},
+    {k:'startip',l:'Start IP',t:'ip',showIf:o=>o.type==='iprange'},
+    {k:'endip',l:'End IP',t:'ip',showIf:o=>o.type==='iprange'},
+    {k:'fqdn',l:'FQDN',t:'text',ph:'www.example.com',mono:true,showIf:o=>o.type==='fqdn'},
+    {k:'country',l:'Country code',t:'text',ph:'US',mono:true,showIf:o=>o.type==='geography'},
+    {k:'intf',l:'Associated interface',t:'text',mono:true,help:'Optional'},
+    {k:'comment',l:'Comment',t:'text',full:true}
+  ],
+  valid:a=>a.name,
+  gen(arr){const ents=arr.filter(a=>a.name);if(!ents.length)return'';const e=Emitter();e.open('config firewall address');
+    ents.forEach(a=>{e.edit(qq(a.name));const t=a.type||'subnet';
+      if(t==='subnet'){const im=pairIM(a.subnet,a.mask);if(im)e.set('subnet',im);}
+      else if(t==='iprange'){e.set('type','iprange');e.set('start-ip',a.startip);e.set('end-ip',a.endip);}
+      else if(t==='fqdn'){e.set('type','fqdn');e.set('fqdn',a.fqdn?qq(a.fqdn):'');}
+      else if(t==='geography'){e.set('type','geography');e.set('country',a.country?qq(String(a.country).toUpperCase()):'');}
+      if(a.intf)e.set('associated-interface',qq(a.intf));
+      e.set('comment',a.comment?qq(a.comment):'');
+      e.next();});e.close();return e.out();}
+},
+
+addrgrp:{group:'obj',label:'Address Groups',desc:'Bundle address objects together for reuse in policy.',cli:'config firewall addrgrp',item:'group',
+  fields:[
+    {k:'name',l:'Group name',t:'text',req:true,ph:'Internal_Nets',mono:true},
+    {k:'member',l:'Members',t:'tags',req:true,ph:'LAN_Subnet Guest_Subnet',help:'Address object names'},
+    {k:'comment',l:'Comment',t:'text',full:true}
+  ],
+  valid:a=>a.name,
+  gen(arr){const ents=arr.filter(a=>a.name);if(!ents.length)return'';const e=Emitter();e.open('config firewall addrgrp');
+    ents.forEach(a=>{e.edit(qq(a.name));if(toks(a.member).length)e.set('member',qlist(a.member));e.set('comment',a.comment?qq(a.comment):'');e.next();});
+    e.close();return e.out();}
+},
+
+service:{group:'obj',label:'Custom Services',desc:'Define non-standard TCP/UDP/ICMP/IP services.',cli:'config firewall service custom',item:'service',
+  fields:[
+    {k:'name',l:'Name',t:'text',req:true,ph:'HTTPS-8443',mono:true},
+    {k:'proto',l:'Protocol',t:'select',opts:[["tcpudp","TCP / UDP / SCTP"],["ICMP","ICMP"],["IP","IP"]],def:'tcpudp',controls:true},
+    {k:'tcp',l:'TCP port range',t:'text',ph:'8443 or 8000-8100',mono:true,showIf:o=>(o.proto||'tcpudp')==='tcpudp'},
+    {k:'udp',l:'UDP port range',t:'text',ph:'53 or 5060-5061',mono:true,showIf:o=>(o.proto||'tcpudp')==='tcpudp'},
+    {k:'sctp',l:'SCTP port range',t:'text',mono:true,showIf:o=>(o.proto||'tcpudp')==='tcpudp'},
+    {k:'icmptype',l:'ICMP type',t:'number',ph:'8',showIf:o=>o.proto==='ICMP'},
+    {k:'icmpcode',l:'ICMP code',t:'number',ph:'0',showIf:o=>o.proto==='ICMP'},
+    {k:'protonum',l:'IP protocol number',t:'number',ph:'47',showIf:o=>o.proto==='IP'},
+    {k:'comment',l:'Comment',t:'text',full:true}
+  ],
+  valid:a=>a.name,
+  gen(arr){const ents=arr.filter(a=>a.name);if(!ents.length)return'';const e=Emitter();e.open('config firewall service custom');
+    ents.forEach(a=>{e.edit(qq(a.name));const p=a.proto||'tcpudp';
+      if(p==='tcpudp'){e.set('tcp-portrange',a.tcp);e.set('udp-portrange',a.udp);e.set('sctp-portrange',a.sctp);}
+      else if(p==='ICMP'){e.set('protocol','ICMP');e.set('icmptype',a.icmptype);e.set('icmpcode',a.icmpcode);}
+      else if(p==='IP'){e.set('protocol','IP');e.set('protocol-number',a.protonum);}
+      e.set('comment',a.comment?qq(a.comment):'');e.next();});e.close();return e.out();}
+},
+
+servicegrp:{group:'obj',label:'Service Groups',desc:'Group services for use in policy.',cli:'config firewall service group',item:'service group',
+  fields:[
+    {k:'name',l:'Group name',t:'text',req:true,ph:'Web-Services',mono:true},
+    {k:'member',l:'Members',t:'tags',req:true,ph:'HTTP HTTPS DNS',help:'Service names'},
+    {k:'comment',l:'Comment',t:'text',full:true}
+  ],
+  valid:a=>a.name,
+  gen(arr){const ents=arr.filter(a=>a.name);if(!ents.length)return'';const e=Emitter();e.open('config firewall service group');
+    ents.forEach(a=>{e.edit(qq(a.name));if(toks(a.member).length)e.set('member',qlist(a.member));e.set('comment',a.comment?qq(a.comment):'');e.next();});
+    e.close();return e.out();}
+},
+
+schedule:{group:'obj',label:'Schedules',desc:'Recurring or one-time time windows for policies.',cli:'config firewall schedule',item:'schedule',
+  fields:[
+    {k:'name',l:'Name',t:'text',req:true,ph:'WorkHours',mono:true},
+    {k:'type',l:'Type',t:'select',opts:[["recurring","recurring"],["onetime","one-time"]],def:'recurring',controls:true},
+    {k:'days',l:'Days',t:'checks',opts:DAYS,full:true,showIf:o=>(o.type||'recurring')==='recurring'},
+    {k:'start',l:'Start time',t:'text',ph:'08:00',mono:true,showIf:o=>(o.type||'recurring')==='recurring'},
+    {k:'end',l:'End time',t:'text',ph:'18:00',mono:true,showIf:o=>(o.type||'recurring')==='recurring'},
+    {k:'startdt',l:'Start',t:'text',ph:'08:00 2025/01/01',mono:true,help:'hh:mm yyyy/mm/dd',showIf:o=>o.type==='onetime'},
+    {k:'enddt',l:'End',t:'text',ph:'18:00 2025/01/01',mono:true,help:'hh:mm yyyy/mm/dd',showIf:o=>o.type==='onetime'}
+  ],
+  valid:a=>a.name,
+  gen(arr){const rec=arr.filter(a=>a.name&&(a.type||'recurring')==='recurring');const one=arr.filter(a=>a.name&&a.type==='onetime');const out=[];
+    if(rec.length){const e=Emitter();e.open('config firewall schedule recurring');rec.forEach(a=>{e.edit(qq(a.name));if(a.days&&a.days.length)e.set('day',a.days);e.set('start',a.start);e.set('end',a.end);e.next();});e.close();out.push(e.out());}
+    if(one.length){const e=Emitter();e.open('config firewall schedule onetime');one.forEach(a=>{e.edit(qq(a.name));e.set('start',a.startdt);e.set('end',a.enddt);e.next();});e.close();out.push(e.out());}
+    return out.join('\n');}
+},
+
+/* ---------- NAT ---------- */
+ippool:{group:'nat',label:'IP Pools (SNAT)',desc:'Source NAT pools for outbound translation.',cli:'config firewall ippool',item:'IP pool',
+  fields:[
+    {k:'name',l:'Name',t:'text',req:true,ph:'NAT-Pool',mono:true},
+    {k:'type',l:'Type',t:'select',opts:[["overload","overload"],["one-to-one","one-to-one"],["fixed-port-range","fixed-port-range"],["port-block-allocation","port-block-allocation"]],def:'overload'},
+    {k:'startip',l:'Start IP',t:'ip',req:true,ph:'203.0.113.20'},
+    {k:'endip',l:'End IP',t:'ip',req:true,ph:'203.0.113.25'},
+    {k:'comment',l:'Comment',t:'text',full:true}
+  ],
+  valid:a=>a.name&&a.startip&&a.endip,
+  gen(arr){const ents=arr.filter(this.valid);if(!ents.length)return'';const e=Emitter();e.open('config firewall ippool');
+    ents.forEach(a=>{e.edit(qq(a.name));e.set('type',a.type||'overload');e.set('startip',a.startip);e.set('endip',a.endip);e.set('comments',a.comment?qq(a.comment):'');e.next();});
+    e.close();return e.out();}
+},
+
+vip:{group:'nat',label:'Virtual IPs (DNAT)',desc:'Destination NAT / port forwarding. Reference the VIP name in a policy destination.',cli:'config firewall vip',item:'VIP',
+  fields:[
+    {k:'name',l:'Name',t:'text',req:true,ph:'Web-Server',mono:true},
+    {k:'extip',l:'External IP',t:'ip',req:true,ph:'203.0.113.10'},
+    {k:'extintf',l:'External interface',t:'text',def:'any',mono:true,help:'WAN port or "any"'},
+    {k:'mappedip',l:'Mapped IP',t:'ip',req:true,ph:'192.168.1.100'},
+    {k:'portforward',l:'Port forwarding',t:'toggle',sub:'Map specific ports instead of all traffic',controls:true},
+    {k:'protocol',l:'Protocol',t:'select',opts:["tcp","udp","sctp","icmp"],def:'tcp',showIf:o=>o.portforward},
+    {k:'extport',l:'External port',t:'text',ph:'443',mono:true,showIf:o=>o.portforward},
+    {k:'mappedport',l:'Mapped port',t:'text',ph:'443',mono:true,showIf:o=>o.portforward},
+    {k:'comment',l:'Comment',t:'text',full:true}
+  ],
+  valid:a=>a.name&&a.extip&&a.mappedip,
+  gen(arr){const ents=arr.filter(this.valid);if(!ents.length)return'';const e=Emitter();e.open('config firewall vip');
+    ents.forEach(a=>{e.edit(qq(a.name));e.set('extip',a.extip);e.set('extintf',qq(a.extintf||'any'));e.set('mappedip',qq(a.mappedip));
+      if(a.portforward){e.set('portforward','enable');e.set('protocol',a.protocol||'tcp');e.set('extport',a.extport);e.set('mappedport',a.mappedport);}
+      e.set('comment',a.comment?qq(a.comment):'');e.next();});e.close();return e.out();}
+},
+
+/* ---------- SECURITY POLICY ---------- */
+policy:{group:'pol',label:'Firewall Policy',desc:'IPv4 policies. Interfaces / addresses / services accept multiple space-separated names. NAT & UTM apply to accept rules only.',cli:'config firewall policy',item:'policy',
+  fields:[
+    {k:'name',l:'Policy name',t:'text',req:true,ph:'LAN-to-WAN',mono:true},
+    {k:'srcintf',l:'Incoming interface',t:'tags',req:true,ph:'port1',mono:true},
+    {k:'dstintf',l:'Outgoing interface',t:'tags',req:true,ph:'port2',mono:true},
+    {k:'srcaddr',l:'Source address',t:'tags',def:'all',ph:'all'},
+    {k:'dstaddr',l:'Destination address',t:'tags',def:'all',ph:'all'},
+    {k:'service',l:'Service',t:'tags',def:'ALL',ph:'ALL'},
+    {k:'schedule',l:'Schedule',t:'text',def:'always',mono:true},
+    {k:'action',l:'Action',t:'select',opts:["accept","deny"],def:'accept',controls:true},
+    {k:'nat',l:'Source NAT (outbound)',t:'toggle',def:true,controls:true,showIf:o=>(o.action||'accept')==='accept'},
+    {k:'ippool',l:'Use IP pool for NAT',t:'toggle',controls:true,showIf:o=>(o.action||'accept')==='accept'&&o.nat},
+    {k:'poolname',l:'IP pool name',t:'text',mono:true,showIf:o=>(o.action||'accept')==='accept'&&o.nat&&o.ippool},
+    {k:'utm',l:'Enable security profiles (UTM)',t:'toggle',controls:true,showIf:o=>(o.action||'accept')==='accept'},
+    {k:'ssl',l:'SSL/SSH inspection',t:'select',opts:["certificate-inspection","deep-inspection"],def:'certificate-inspection',showIf:o=>o.utm&&(o.action||'accept')==='accept'},
+    {k:'av',l:'AntiVirus profile',t:'text',ph:'default',mono:true,showIf:o=>o.utm&&(o.action||'accept')==='accept'},
+    {k:'webfilter',l:'Web filter profile',t:'text',ph:'default',mono:true,showIf:o=>o.utm&&(o.action||'accept')==='accept'},
+    {k:'dnsfilter',l:'DNS filter profile',t:'text',ph:'default',mono:true,showIf:o=>o.utm&&(o.action||'accept')==='accept'},
+    {k:'app',l:'Application control',t:'text',ph:'default',mono:true,showIf:o=>o.utm&&(o.action||'accept')==='accept'},
+    {k:'ips',l:'IPS sensor',t:'text',ph:'default',mono:true,showIf:o=>o.utm&&(o.action||'accept')==='accept'},
+    {k:'logtraffic',l:'Log traffic',t:'select',opts:[["utm","Security events"],["all","All sessions"],["disable","Disable"]],def:'utm'},
+    {k:'status',l:'Enabled',t:'toggle',def:true},
+    {k:'comments',l:'Comments',t:'text',full:true}
+  ],
+  valid:a=>a.name&&toks(a.srcintf).length&&toks(a.dstintf).length,
+  gen(arr){const ents=arr.filter(this.valid);if(!ents.length)return'';const e=Emitter();e.open('config firewall policy');
+    ents.forEach((a,i)=>{e.edit(i+1);
+      e.set('name',qq(a.name));
+      e.set('srcintf',qlist(a.srcintf));e.set('dstintf',qlist(a.dstintf));
+      e.set('srcaddr',qlist(a.srcaddr||'all'));e.set('dstaddr',qlist(a.dstaddr||'all'));
+      e.set('action',a.action||'accept');e.set('schedule',qq(a.schedule||'always'));e.set('service',qlist(a.service||'ALL'));
+      const accept=(a.action||'accept')==='accept';
+      if(accept&&a.utm){e.set('utm-status','enable');e.set('ssl-ssh-profile',qq(a.ssl||'certificate-inspection'));
+        if(a.av)e.set('av-profile',qq(a.av));if(a.webfilter)e.set('webfilter-profile',qq(a.webfilter));
+        if(a.dnsfilter)e.set('dnsfilter-profile',qq(a.dnsfilter));if(a.app)e.set('application-list',qq(a.app));
+        if(a.ips)e.set('ips-sensor',qq(a.ips));}
+      e.set('logtraffic',a.logtraffic||'utm');
+      if(accept&&a.nat){e.set('nat','enable');if(a.ippool&&a.poolname){e.set('ippool','enable');e.set('poolname',qq(a.poolname));}}
+      if(a.status===false)e.set('status','disable');
+      e.set('comments',a.comments?qq(a.comments):'');
+      e.next();});e.close();return e.out();}
+},
+
+/* ---------- VPN ---------- */
+ipsec:{group:'vpn',label:'IPsec Site-to-Site',desc:'Route-based IPsec tunnels (phase1 + phase2). Optionally also emit the static route, address objects and bidirectional policies.',cli:'config vpn ipsec phase1-interface',item:'tunnel',
+  fields:[
+    {k:'name',l:'Tunnel name',t:'text',req:true,ph:'VPN-HQ',mono:true},
+    {k:'interface',l:'WAN interface',t:'text',req:true,ph:'port2',mono:true},
+    {k:'remotegw',l:'Remote gateway',t:'ip',req:true,ph:'203.0.113.50'},
+    {k:'ikev',l:'IKE version',t:'select',opts:[["2","IKEv2"],["1","IKEv1"]],def:'2',controls:true},
+    {k:'mode',l:'IKEv1 mode',t:'select',opts:["main","aggressive"],def:'main',showIf:o=>o.ikev==='1'},
+    {k:'psk',l:'Pre-shared key',t:'password',ph:'(blank = placeholder)',help:'Stored in plaintext in the script'},
+    {k:'p1prop',l:'Phase 1 proposal',t:'select',opts:P1PROP,def:'aes256-sha256'},
+    {k:'p1dh',l:'Phase 1 DH group',t:'select',opts:DHGRP,def:'14'},
+    {k:'p1life',l:'Phase 1 keylife (sec)',t:'number',ph:'86400'},
+    {k:'localsub',l:'Local subnet',t:'ip',req:true,ph:'192.168.1.0/24',mono:true},
+    {k:'localmask',l:'Local netmask',t:'mask',ph:'255.255.255.0 or 24',mono:true},
+    {k:'remotesub',l:'Remote subnet',t:'ip',req:true,ph:'10.50.0.0/24',mono:true},
+    {k:'remotemask',l:'Remote netmask',t:'mask',ph:'255.255.255.0 or 24',mono:true},
+    {k:'p2prop',l:'Phase 2 proposal',t:'select',opts:P1PROP,def:'aes256-sha256'},
+    {k:'pfs',l:'Perfect Forward Secrecy',t:'toggle',def:true,controls:true},
+    {k:'p2dh',l:'Phase 2 DH group',t:'select',opts:DHGRP,def:'14',showIf:o=>o.pfs!==false},
+    {k:'autoroute',l:'Also create static route',t:'toggle',def:true},
+    {k:'autopol',l:'Also create addresses + policies',t:'toggle',def:true,sub:'Bidirectional accept rules over the tunnel'}
+  ],
+  valid:a=>a.name&&a.interface&&a.remotegw&&a.localsub&&a.remotesub,
+  gen(arr){const ents=arr.filter(this.valid);if(!ents.length)return'';const out=[];
+    let e=Emitter();e.open('config vpn ipsec phase1-interface');
+    ents.forEach(a=>{e.edit(qq(a.name));e.set('type','static');e.set('interface',qq(a.interface));e.set('ike-version',a.ikev||'2');
+      if((a.ikev||'2')==='1')e.set('mode',a.mode||'main');
+      e.set('peertype','any');e.set('proposal',a.p1prop||'aes256-sha256');e.set('dhgrp',a.p1dh||'14');
+      e.set('keylife',a.p1life);e.set('remote-gw',a.remotegw);e.set('psksecret',a.psk?qq(a.psk):'<PRESHARED_KEY>');e.next();});
+    e.close();out.push(e.out());
+    e=Emitter();e.open('config vpn ipsec phase2-interface');
+    ents.forEach(a=>{e.edit(qq(a.name+'-p2'));e.set('phase1name',qq(a.name));e.set('proposal',a.p2prop||'aes256-sha256');
+      if(a.pfs===false)e.set('pfs','disable');else e.set('dhgrp',a.p2dh||'14');
+      e.set('src-subnet',pairIM(a.localsub,a.localmask));e.set('dst-subnet',pairIM(a.remotesub,a.remotemask));e.next();});
+    e.close();out.push(e.out());
+    const routed=ents.filter(a=>a.autoroute!==false);
+    if(routed.length){e=Emitter();e.open('config router static');routed.forEach((a,i)=>{e.edit(100+i);e.set('dst',pairIM(a.remotesub,a.remotemask));e.set('device',qq(a.name));e.set('comment',qq('via '+a.name));e.next();});e.close();out.push(e.out());}
+    const pol=ents.filter(a=>a.autopol!==false);
+    if(pol.length){
+      e=Emitter();e.open('config firewall address');
+      pol.forEach(a=>{e.edit(qq(a.name+'-local'));e.set('subnet',pairIM(a.localsub,a.localmask));e.next();
+        e.edit(qq(a.name+'-remote'));e.set('subnet',pairIM(a.remotesub,a.remotemask));e.next();});
+      e.close();out.push(e.out());
+      e=Emitter();e.open('config firewall policy');let pid=900;
+      pol.forEach(a=>{
+        e.edit(pid++);e.set('name',qq(a.name+'-out'));e.set('srcintf',qq('any'));e.set('dstintf',qq(a.name));
+        e.set('srcaddr',qq(a.name+'-local'));e.set('dstaddr',qq(a.name+'-remote'));e.set('action','accept');e.set('schedule',qq('always'));e.set('service',qq('ALL'));e.set('logtraffic','all');e.next();
+        e.edit(pid++);e.set('name',qq(a.name+'-in'));e.set('srcintf',qq(a.name));e.set('dstintf',qq('any'));
+        e.set('srcaddr',qq(a.name+'-remote'));e.set('dstaddr',qq(a.name+'-local'));e.set('action','accept');e.set('schedule',qq('always'));e.set('service',qq('ALL'));e.set('logtraffic','all');e.next();
+      });
+      e.close();out.push(e.out());
+    }
+    return out.join('\n\n');}
+},
+
+sslvpn:{group:'vpn',label:'SSL-VPN',desc:'SSL-VPN gateway settings. Uses built-in defaults (Fortinet_Factory cert, SSLVPN_TUNNEL_ADDR1 pool, full-access portal) so it works out of the box.',single:true,enableToggle:true,cli:'config vpn ssl settings',
+  fields:[
+    {k:'intf',l:'Listen interface',t:'text',req:true,ph:'port2',mono:true},
+    {k:'port',l:'Listen port',t:'number',ph:'10443'},
+    {k:'cert',l:'Server certificate',t:'text',def:'Fortinet_Factory',mono:true},
+    {k:'pool',l:'Tunnel IP pool',t:'text',def:'SSLVPN_TUNNEL_ADDR1',mono:true},
+    {k:'srcaddr',l:'Source address',t:'text',def:'all',mono:true},
+    {k:'portal',l:'Default portal',t:'text',def:'full-access',mono:true},
+    {k:'group',l:'Auth user group (optional)',t:'text',mono:true,help:'Maps a group to the portal'}
+  ],
+  gen(o){if(!o.intf)return'';const e=Emitter();e.open('config vpn ssl settings');
+    e.set('servercert',qq(o.cert||'Fortinet_Factory'));e.set('tunnel-ip-pools',qq(o.pool||'SSLVPN_TUNNEL_ADDR1'));
+    e.set('source-interface',qq(o.intf));e.set('source-address',qq(o.srcaddr||'all'));
+    e.set('default-portal',qq(o.portal||'full-access'));e.set('port',o.port);
+    if(o.group){e.open('config authentication-rule').edit(1).set('groups',qq(o.group)).set('portal',qq(o.portal||'full-access')).next().close();}
+    e.close();return e.out();}
+},
+
+/* ---------- USERS & AUTH ---------- */
+users:{group:'usr',label:'Local Users & Groups',desc:'Local user accounts and firewall user groups (e.g. for SSL-VPN).',custom:true,fields:[],
+  gen(store){const u=(store.users.users||[]).filter(x=>x.name);const g=(store.users.groups||[]).filter(x=>x.name);const out=[];
+    if(u.length){const e=Emitter();e.open('config user local');u.forEach(x=>{e.edit(qq(x.name));e.set('type','password');e.set('passwd',x.password?qq(x.password):'<USER_PASSWORD>');if(x.status===false)e.set('status','disable');e.next();});e.close();out.push(e.out());}
+    if(g.length){const e=Emitter();e.open('config user group');g.forEach(x=>{e.edit(qq(x.name));if(toks(x.member).length)e.set('member',qlist(x.member));e.next();});e.close();out.push(e.out());}
+    return out.join('\n');}
+},
+
+/* ---------- LOGGING & SNMP ---------- */
+snmp:{group:'log',label:'SNMP',desc:'SNMP v2c system info and a community with a single allowed manager host.',single:true,enableToggle:true,cli:'config system snmp',
+  fields:[
+    {k:'description',l:'Description',t:'text'},
+    {k:'contact',l:'Contact info',t:'text'},
+    {k:'location',l:'Location',t:'text'},
+    {k:'community',l:'Community name',t:'text',def:'public',mono:true},
+    {k:'host',l:'Manager host',t:'ip',ph:'10.0.0.10',help:'SNMP server allowed to query'},
+    {k:'traps',l:'Send v2c traps',t:'toggle'}
+  ],
+  gen(o){const e=Emitter();e.open('config system snmp sysinfo');e.set('status','enable');
+    e.set('description',o.description?qq(o.description):'');e.set('contact-info',o.contact?qq(o.contact):'');e.set('location',o.location?qq(o.location):'');e.close();
+    const e2=Emitter();e2.open('config system snmp community');e2.edit(1);e2.set('name',qq(o.community||'public'));
+    if(o.host){e2.open('config hosts').edit(1).set('ip',o.host+' 255.255.255.255').next().close();}
+    e2.set('query-v2c-status','enable');if(o.traps)e2.set('trap-v2c-status','enable');e2.next();e2.close();
+    return e.out()+'\n'+e2.out();}
+},
+
+syslog:{group:'log',label:'Syslog',desc:'Forward logs to a remote syslog / SIEM collector.',single:true,enableToggle:true,cli:'config log syslogd setting',
+  fields:[
+    {k:'server',l:'Syslog server',t:'ip',req:true,ph:'10.0.0.20'},
+    {k:'port',l:'Port',t:'number',ph:'514'},
+    {k:'mode',l:'Mode',t:'select',opts:["udp","tcp","reliable"],def:'udp'},
+    {k:'facility',l:'Facility',t:'select',opts:["local7","local0","local1","local2","local3","local4","local5","local6"],def:'local7'},
+    {k:'sourceip',l:'Source IP (optional)',t:'ip'}
+  ],
+  gen(o){if(!o.server)return'';const e=Emitter();e.open('config log syslogd setting');e.set('status','enable');
+    e.set('server',qq(o.server));e.set('port',o.port);e.set('mode',o.mode||'udp');e.set('facility',o.facility||'local7');
+    if(o.sourceip)e.set('source-ip',qq(o.sourceip));e.close();return e.out();}
+}
+
+};
+
+/* ---------- navigation layout & output order ---------- */
+const NAV=[
+  {g:'sys',name:'System',ids:['global','dns','ntp','admin']},
+  {g:'net',name:'Interfaces & Routing',ids:['interfaces','zones','dhcp','routes']},
+  {g:'obj',name:'Firewall Objects',ids:['address','addrgrp','service','servicegrp','schedule']},
+  {g:'nat',name:'NAT',ids:['ippool','vip']},
+  {g:'pol',name:'Security Policy',ids:['policy']},
+  {g:'vpn',name:'VPN',ids:['ipsec','sslvpn']},
+  {g:'usr',name:'Users & Auth',ids:['users']},
+  {g:'log',name:'Logging & SNMP',ids:['snmp','syslog']}
+];
+const OUTPUT_ORDER=['global','dns','ntp','snmp','syslog','interfaces','zones','dhcp','address','addrgrp','service','servicegrp','schedule','ippool','vip','users','ipsec','sslvpn','routes','policy','admin'];
+
+/* ---------- state ---------- */
+function defObj(fields){const o={};fields.forEach(f=>{if(f.def!==undefined)o[f.k]=f.def;});return o;}
+function freshStore(){
+  const s={};
+  for(const id in MODULES){const m=MODULES[id];
+    if(m.custom) s[id]={users:[],groups:[]};
+    else if(m.single){const o=defObj(m.fields);if(m.enableToggle)o.__enabled=false;s[id]=o;}
+    else s[id]=[];
+  }
+  return s;
+}
+let store=freshStore();
+let active='global';
+let navFilter='';
+let appReady=false;
+let dirty=false;
+
+/* ---------- field rendering ---------- */
+function switchEl(checked,onChange){
+  const lab=el('label',{class:'sw'});
+  const input=el('input',{type:'checkbox'});input.checked=!!checked;
+  input.addEventListener('change',()=>onChange(input.checked));
+  lab.append(input,el('span',{class:'track'}),el('span',{class:'knob'}));
+  return lab;
+}
+function fieldEl(f,data){
+  if(f.t==='hidden') return null;
+  const wrap=el('div',{class:'field'+(f.full?' full':'')});
+  wrap.append(el('label',{},f.l,f.req?el('span',{class:'req'},'*'):null));
+  const cur=data[f.k];
+
+  if(f.t==='toggle'){
+    const row=el('div',{class:'field-toggle'});
+    row.append(switchEl(cur===undefined?!!f.def:!!cur,checked=>{ data[f.k]=checked; if(f.controls) renderForm(); update(); }));
+    if(f.sub) row.append(el('div',{class:'ttxt'},f.sub));
+    wrap.append(row);
+    return wrap;
+  }
+  if(f.t==='select'){
+    const sel=el('select',{class:'in'});
+    (f.opts||[]).forEach(o=>{const val=Array.isArray(o)?o[0]:o;const txt=Array.isArray(o)?o[1]:o;
+      const opt=el('option',{value:val},txt);
+      if((cur===undefined?f.def:cur)===val) opt.selected=true;
+      sel.append(opt);});
+    sel.addEventListener('change',()=>{ data[f.k]=sel.value; if(f.controls) renderForm(); update(); });
+    wrap.append(sel);
+    if(f.help) wrap.append(el('div',{class:'help'},f.help));
+    return wrap;
+  }
+  if(f.t==='checks'){
+    const box=el('div',{class:'checks'});
+    (f.opts||[]).forEach(o=>{
+      const on=Array.isArray(cur)&&cur.includes(o);
+      const lab=el('label',{class:'chk'+(on?' on':'')});
+      const inp=el('input',{type:'checkbox'});inp.checked=on;
+      inp.addEventListener('change',()=>{
+        let a=Array.isArray(data[f.k])?data[f.k].slice():[];
+        if(inp.checked){ if(!a.includes(o)) a.push(o); } else a=a.filter(x=>x!==o);
+        data[f.k]=a; lab.classList.toggle('on',inp.checked); update();
+      });
+      lab.append(inp,o);
+      box.append(lab);
+    });
+    wrap.append(box);
+    if(f.help) wrap.append(el('div',{class:'help'},f.help));
+    return wrap;
+  }
+  // text / number / ip / mask / password / tags
+  const inp=el('input',{class:'in'+(f.mono?' mono':''),type:(f.t==='number'?'number':'text')});
+  inp.value = (cur===undefined ? (f.def!==undefined?f.def:'') : cur);
+  if(f.ph) inp.placeholder=f.ph;
+  if(f.t==='ip'||f.t==='mask') inp.setAttribute('inputmode','decimal');
+  inp.addEventListener('input',()=>{
+    data[f.k]=inp.value;
+    if(f.t==='ip'){ const ok=!inp.value||isIP(inp.value)||inp.value.includes('/'); inp.classList.toggle('bad',!ok); }
+    if(f.t==='mask'){ const ok=!inp.value||/^(\/?\d{1,2}|(\d{1,3}\.){3}\d{1,3})$/.test(inp.value); inp.classList.toggle('bad',!ok); }
+    update();
+  });
+  wrap.append(inp);
+  if(f.help) wrap.append(el('div',{class:'help'},f.help));
+  return wrap;
+}
+function gridFor(fields,data){
+  const g=el('div',{class:'grid'});
+  fields.forEach(f=>{ if(f.t==='hidden') return; if(f.showIf&&!f.showIf(data)) return; const fe=fieldEl(f,data); if(fe) g.append(fe); });
+  return g;
+}
+function entryCard(entry,i,fields,onRemove,titleKey){
+  const card=el('div',{class:'card'});
+  const top=el('div',{class:'card-top'});
+  const title=entry[titleKey||'name']||'';
+  top.append(el('div',{},el('span',{class:'idx'},'#'+(i+1)),title?el('span',{class:'nm'},'  '+title):null));
+  top.append(el('button',{class:'iconbtn',title:'Remove',onclick:onRemove},svg(TRASH)));
+  card.append(top,gridFor(fields,entry));
+  return card;
+}
+function addBtn(text,fn){ return el('button',{class:'addbtn',onclick:fn},svg(PLUS),text); }
+function subhead(t){ return el('div',{style:'font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:600;margin:2px 0 12px'},t); }
+
+/* ---------- users (custom module) ---------- */
+const USER_FIELDS=[
+  {k:'name',l:'Username',t:'text',req:true,ph:'vpnuser',mono:true},
+  {k:'password',l:'Password',t:'password',ph:'(blank = placeholder)',help:'Stored in plaintext'},
+  {k:'status',l:'Enabled',t:'toggle',def:true}
+];
+const GROUP_FIELDS=[
+  {k:'name',l:'Group name',t:'text',req:true,ph:'VPN-Users',mono:true},
+  {k:'member',l:'Members',t:'tags',req:true,ph:'vpnuser alice',help:'Local user names'}
+];
+function renderUsers(w){
+  const d=store.users;
+  w.append(subhead('Local users'));
+  if(!d.users.length) w.append(el('div',{class:'empty'},'No users yet.'));
+  d.users.forEach((u,i)=>w.append(entryCard(u,i,USER_FIELDS,()=>{d.users.splice(i,1);renderForm();renderNav();update();})));
+  w.append(addBtn('Add user',()=>{d.users.push(defObj(USER_FIELDS));renderForm();renderNav();update();}));
+  w.append(el('div',{class:'divider'}));
+  w.append(subhead('User groups'));
+  if(!d.groups.length) w.append(el('div',{class:'empty'},'No groups yet.'));
+  d.groups.forEach((g,i)=>w.append(entryCard(g,i,GROUP_FIELDS,()=>{d.groups.splice(i,1);renderForm();renderNav();update();})));
+  w.append(addBtn('Add group',()=>{d.groups.push(defObj(GROUP_FIELDS));renderForm();renderNav();update();}));
+}
+
+/* ---------- nav + form ---------- */
+function countFor(id){const m=MODULES[id];
+  if(m.custom) return store[id].users.length+store[id].groups.length;
+  if(m.single){ if(m.enableToggle&&!store[id].__enabled) return 0; return (m.gen(store[id],store)||'').trim()?1:0; }
+  return store[id].length;
+}
+function renderNav(){
+  const nav=$('#navList');nav.innerHTML='';
+  const q=navFilter.trim().toLowerCase();
+  NAV.forEach(grp=>{
+    const ids=grp.ids.filter(id=>{ const m=MODULES[id]; if(!m) return false;
+      if(!q) return true;
+      return m.label.toLowerCase().includes(q) || grp.name.toLowerCase().includes(q); });
+    if(!ids.length) return;
+    const wrap=el('div',{class:'navgroup'});
+    wrap.append(el('div',{class:'navhead'},svg(GI[grp.g]),grp.name));
+    ids.forEach(id=>{const m=MODULES[id];const c=countFor(id);
+      wrap.append(el('button',{class:'navitem'+(active===id?' active':''),onclick:()=>{active=id;renderNav();renderForm();closeMobileNav();}},
+        m.label, el('span',{class:'cnt'},String(c))));
+    });
+    nav.append(wrap);
+  });
+  if(q && !nav.children.length){ nav.append(el('div',{class:'empty',style:'margin:14px 12px'},'No sections match “'+navFilter+'”.')); }
+}
+function renderForm(){
+  const m=MODULES[active];const w=$('#work');w.innerHTML='';
+  const head=el('div',{class:'mod-head'});
+  head.append(el('h2',{},m.label));
+  if(m.desc) head.append(el('p',{},m.desc));
+  if(m.cli) head.append(el('span',{class:'mod-cli'},m.cli));
+  w.append(head,el('div',{class:'divider'}));
+
+  if(m.enableToggle){
+    const o=store[active];
+    const row=el('div',{class:'enable-row'});
+    row.append(switchEl(!!o.__enabled,v=>{o.__enabled=v;renderForm();renderNav();update();}));
+    row.append(el('div',{},el('div',{class:'lbl'},'Include this section'),el('div',{class:'hint'},'Off by default — turn on to add it to the script')));
+    w.append(row);
+    if(!o.__enabled){ w.append(el('div',{class:'empty'},'This section is disabled.')); update(); return; }
+  }
+
+  if(m.custom){ renderUsers(w); update(); return; }
+
+  if(m.single){
+    const card=el('div',{class:'card'});
+    card.append(gridFor(m.fields,store[active]));
+    w.append(card);
+  } else {
+    const arr=store[active];
+    if(!arr.length) w.append(el('div',{class:'empty'},'No '+(m.item||'entries')+' yet. Add one below.'));
+    const titleKey=(active==='dhcp')?'interface':'name';
+    arr.forEach((entry,i)=>w.append(entryCard(entry,i,m.fields,()=>{arr.splice(i,1);renderForm();renderNav();update();},titleKey)));
+    w.append(addBtn('Add '+(m.item||'entry'),()=>{arr.push(defObj(m.fields));renderForm();renderNav();update();}));
+  }
+  update();
+}
+
+/* ---------- assemble + highlight ---------- */
+function assemble(){
+  const now=new Date();
+  const stamp=now.getFullYear()+'-'+pad2(now.getMonth()+1)+'-'+pad2(now.getDate())+' '+pad2(now.getHours())+':'+pad2(now.getMinutes());
+  const parts=[];
+  OUTPUT_ORDER.forEach(id=>{const m=MODULES[id];if(!m)return;
+    if(m.enableToggle&&!(store[id]&&store[id].__enabled)) return;
+    const data=m.custom?store:store[id];
+    let block='';
+    try{ block=m.gen(data,store)||''; }catch(err){ block='# (error generating '+id+': '+err.message+')'; }
+    if(block&&block.trim()) parts.push('# --- '+m.label+' ---\n'+block);
+  });
+  const head=['# Forgewall — generated FortiGate (FortiOS) CLI',
+    '# Generated '+stamp+'  |  target syntax: FortiOS 7.x',
+    '# Review every value. Replace placeholders (<...>) before deploying.',
+    '# Unofficial — not affiliated with Fortinet, Inc.'].join('\n');
+  if(!parts.length) return head+'\n\n# Nothing configured yet — fill in a section on the left.';
+  return head+'\n\n'+parts.join('\n\n');
+}
+function escapeHtml(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function highlightLine(line){
+  if(/^\s*#/.test(line)) return '<span class="tok-comment">'+escapeHtml(line)+'</span>';
+  let out='',last=0,m;
+  const re=/("(?:[^"\\]|\\.)*")|\b(config|edit|set|unset|next|end|append|select|unselect)\b|(\b\d{1,3}(?:\.\d{1,3}){3}\b)|(\b\d+\b)/g;
+  while((m=re.exec(line))){
+    out+=escapeHtml(line.slice(last,m.index));
+    if(m[1]) out+='<span class="tok-str">'+escapeHtml(m[1])+'</span>';
+    else if(m[2]) out+='<span class="tok-kw">'+escapeHtml(m[2])+'</span>';
+    else if(m[3]) out+='<span class="tok-ip">'+escapeHtml(m[3])+'</span>';
+    else if(m[4]) out+='<span class="tok-num">'+escapeHtml(m[4])+'</span>';
+    last=re.lastIndex;
+  }
+  out+=escapeHtml(line.slice(last));
+  return out;
+}
+function updatePlaceholders(code){
+  const set=new Set(code.match(/<[A-Z_]+>/g)||[]);
+  const pill=$('#placeholderPill');
+  if(set.size===0){ pill.textContent='no placeholders'; pill.className='pill good'; pill.title='Nothing to replace'; }
+  else{ pill.textContent=set.size+' placeholder'+(set.size>1?'s':''); pill.className='pill warn'; pill.title='Replace before deploy: '+[...set].join(', '); }
+}
+function renderOutput(){
+  const code=assemble();
+  const lines=code.split('\n');
+  $('#outMeta').textContent=lines.length+' lines';
+  $('#code').innerHTML=lines.map((ln,i)=>'<span class="ln">'+(i+1)+'</span>'+highlightLine(ln)).join('\n');
+  updatePlaceholders(code);
+}
+function update(){ renderOutput(); renderNav(); if(appReady) dirty=true; }
+
+/* ---------- actions ---------- */
+let toastT;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800);}
+function fallbackCopy(t){const ta=el('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();try{document.execCommand('copy');toast('Copied to clipboard');}catch(e){toast('Press Ctrl/Cmd+C to copy');}ta.remove();}
+function copyText(t){ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(()=>toast('Copied to clipboard')).catch(()=>fallbackCopy(t)); } else fallbackCopy(t); }
+function downloadText(name,text,type){const blob=new Blob([text],{type:type||'text/plain'});const url=URL.createObjectURL(blob);const a=el('a',{href:url,download:name});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function loadStore(obj){ const fresh=freshStore(); for(const k in fresh){ if(obj[k]!==undefined) fresh[k]=obj[k]; } store=fresh; if(!(active in MODULES)) active='global'; renderNav(); renderForm(); }
+
+/* ---------- sample configuration ---------- */
+const EXAMPLE={
+  global:{hostname:'FGT-BRANCH-01',timezone:'04',admin_sport:'8443',admintimeout:'15'},
+  dns:{primary:'8.8.8.8',secondary:'1.1.1.1',domain:'corp.example.com'},
+  ntp:{sync:true,type:'custom',servers:'pool.ntp.org'},
+  admin:[{name:'netadmin',accprofile:'prof_admin',vdom:'root',password:'',trusthost:'192.168.10.0/24'}],
+  interfaces:[
+    {name:'port1',type:'physical',vdom:'root',role:'lan',mode:'static',ip:'192.168.10.1',mask:'255.255.255.0',allowaccess:['ping','https','ssh'],status:true,alias:'LAN'},
+    {name:'port2',type:'physical',vdom:'root',role:'wan',mode:'dhcp',allowaccess:['ping'],status:true,alias:'WAN'},
+    {name:'VLAN20',type:'vlan',vdom:'root',role:'lan',parent:'port1',vlanid:'20',mode:'static',ip:'192.168.20.1',mask:'24',allowaccess:['ping'],status:true,alias:'Guest'}
+  ],
+  dhcp:[{interface:'port1',startip:'192.168.10.100',endip:'192.168.10.200',mask:'255.255.255.0',gateway:'192.168.10.1',dnsmode:'default',lease:'86400',domain:'corp.example.com'}],
+  address:[
+    {name:'LAN_Subnet',type:'subnet',subnet:'192.168.10.0',mask:'24'},
+    {name:'Guest_Subnet',type:'subnet',subnet:'192.168.20.0',mask:'24'}
+  ],
+  addrgrp:[{name:'Internal_Nets',member:'LAN_Subnet Guest_Subnet'}],
+  service:[{name:'HTTPS-8443',proto:'tcpudp',tcp:'8443'}],
+  vip:[{name:'Web-Server',extip:'203.0.113.10',extintf:'port2',mappedip:'192.168.10.100',portforward:true,protocol:'tcp',extport:'443',mappedport:'443'}],
+  routes:[{dst:'10.0.0.0',mask:'8',gateway:'192.168.10.254',device:'port1',distance:'10',status:true}],
+  policy:[
+    {name:'LAN-to-WAN',srcintf:'port1',dstintf:'port2',srcaddr:'Internal_Nets',dstaddr:'all',service:'ALL',schedule:'always',action:'accept',nat:true,utm:true,ssl:'certificate-inspection',av:'default',ips:'default',app:'default',logtraffic:'all',status:true},
+    {name:'Guest-to-WAN',srcintf:'VLAN20',dstintf:'port2',srcaddr:'Guest_Subnet',dstaddr:'all',service:'ALL',schedule:'always',action:'accept',nat:true,logtraffic:'utm',status:true}
+  ],
+  ipsec:[{name:'VPN-HQ',interface:'port2',remotegw:'203.0.113.50',ikev:'2',psk:'',p1prop:'aes256-sha256',p1dh:'14',p1life:'86400',localsub:'192.168.10.0',localmask:'24',remotesub:'10.50.0.0',remotemask:'24',p2prop:'aes256-sha256',pfs:true,p2dh:'14',autoroute:true,autopol:true}],
+  users:{users:[{name:'vpnuser',password:'',status:true}],groups:[{name:'VPN-Users',member:'vpnuser'}]},
+  sslvpn:{__enabled:true,intf:'port2',port:'10443',cert:'Fortinet_Factory',pool:'SSLVPN_TUNNEL_ADDR1',srcaddr:'all',portal:'full-access',group:'VPN-Users'},
+  syslog:{__enabled:true,server:'192.168.10.250',port:'514',mode:'udp',facility:'local7'},
+  snmp:{__enabled:true,community:'public',host:'192.168.10.250',location:'Branch-01',contact:'noc@example.com'}
+};
+function cloneOf(o){ return (typeof structuredClone==='function')?structuredClone(o):JSON.parse(JSON.stringify(o)); }
+
+/* ---------- mobile helpers ---------- */
+function closeMobileNav(){ $('#nav').classList.remove('open'); }
+function openOutput(){ $('#outwrap').classList.add('open'); $('#overlayX').classList.add('open'); }
+function closeOutput(){ $('#outwrap').classList.remove('open'); $('#overlayX').classList.remove('open'); }
+
+/* ---------- wire up ---------- */
+$('#copyBtn').addEventListener('click',()=>copyText(assemble()));
+$('#dlBtn').addEventListener('click',()=>downloadText('fortigate.conf',assemble()));
+$('#exportBtn').addEventListener('click',()=>{ downloadText('forgewall-profile.json',JSON.stringify(store,null,2),'application/json'); dirty=false; toast('Profile exported'); });
+$('#importBtn').addEventListener('click',()=>$('#fileIn').click());
+$('#fileIn').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{ try{ const obj=JSON.parse(r.result); if(typeof obj!=='object'||Array.isArray(obj)) throw new Error('bad'); loadStore(obj); dirty=true; toast('Profile imported'); }catch(err){ toast('Could not read that file'); } e.target.value=''; };
+  r.readAsText(f);});
+$('#exampleBtn').addEventListener('click',()=>{ loadStore(cloneOf(EXAMPLE)); dirty=true; toast('Sample branch config loaded'); });
+$('#resetBtn').addEventListener('click',()=>{ if(confirm('Clear all configuration and start over?')){ store=freshStore(); active='global'; navFilter=''; if($('#navSearch')) $('#navSearch').value=''; renderNav(); renderForm(); dirty=false; toast('Cleared'); } });
+$('#navToggle').addEventListener('click',()=>$('#nav').classList.toggle('open'));
+$('#mobView').addEventListener('click',openOutput);
+$('#outClose').addEventListener('click',closeOutput);
+$('#overlayX').addEventListener('click',closeOutput);
+
+$('#foot').innerHTML='Forgewall v'+VERSION+' • 100% client-side — makes no network requests and never stores your config (use Export to save). Syntax targets FortiOS 7.x; verify the timezone index, profile names and any version-specific options against your device. Secrets are placeholders unless you type a value. Unofficial — not affiliated with Fortinet, Inc. • <a href="https://github.com/your-username/forgewall" target="_blank" rel="noopener noreferrer">GitHub</a>';
+
+/* ---------- theme (only non-sensitive preference is persisted, and only if storage is available) ---------- */
+const THEME_KEY='forgewall-theme';
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+const SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+const MOON='<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const b=$('#themeBtn');
+  if(b){ b.innerHTML=''; b.append(svg(t==='light'?MOON:SUN)); b.title=(t==='light'?'Switch to dark theme':'Switch to light theme'); }
+}
+let theme=lsGet(THEME_KEY)||((window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark');
+applyTheme(theme);
+$('#themeBtn').addEventListener('click',()=>{ theme=(theme==='light'?'dark':'light'); applyTheme(theme); lsSet(THEME_KEY,theme); });
+
+/* ---------- about / help modal ---------- */
+function openHelp(){ const m=$('#helpModal'); m.classList.add('open'); m.setAttribute('aria-hidden','false'); }
+function closeHelp(){ const m=$('#helpModal'); m.classList.remove('open'); m.setAttribute('aria-hidden','true'); }
+$('#helpBtn').addEventListener('click',openHelp);
+$('#helpClose').addEventListener('click',closeHelp);
+$('#helpModal').addEventListener('click',e=>{ if(e.target===$('#helpModal')) closeHelp(); });
+
+/* ---------- section search ---------- */
+const navSearchEl=$('#navSearch');
+navSearchEl.addEventListener('input',()=>{ navFilter=navSearchEl.value; renderNav(); });
+navSearchEl.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){ const q=navFilter.trim().toLowerCase();
+    for(const grp of NAV){ for(const id of grp.ids){ const m=MODULES[id];
+      if(m && (m.label.toLowerCase().includes(q)||grp.name.toLowerCase().includes(q))){ active=id; renderNav(); renderForm(); navSearchEl.blur(); return; } } } }
+  else if(e.key==='Escape'){ navSearchEl.value=''; navFilter=''; renderNav(); navSearchEl.blur(); }
+});
+
+/* ---------- keyboard shortcuts ---------- */
+document.addEventListener('keydown',e=>{
+  const tag=((document.activeElement&&document.activeElement.tagName)||'').toLowerCase();
+  const typing=tag==='input'||tag==='textarea'||tag==='select';
+  const mod=e.ctrlKey||e.metaKey;
+  if(mod && (e.key==='s'||e.key==='S')){ e.preventDefault(); $('#exportBtn').click(); }
+  else if(mod && e.key==='Enter'){ e.preventDefault(); copyText(assemble()); }
+  else if(e.key==='Escape'){ closeHelp(); closeOutput(); }
+  else if(e.key==='/' && !typing && !mod){ e.preventDefault(); navSearchEl.focus(); }
+});
+
+/* ---------- guard against losing unsaved work ---------- */
+window.addEventListener('beforeunload',e=>{ if(dirty){ e.preventDefault(); e.returnValue=''; } });
+
+/* ---------- init ---------- */
+renderNav();
+renderForm();
+appReady=true;
+</script>
+</body>
+</html>
